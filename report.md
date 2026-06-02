@@ -1,3 +1,5 @@
+#12223632 서진
+
 # 1. 프로젝트 동기 및 문제 정의
 
 본 프로젝트의 목표는 18개의 Base Station(BS)으로부터 수집된 RTT(Round Trip Time) 거리 측정값을 이용하여 사용자의 2차원 위치를 추정하는 것이다.
@@ -294,12 +296,32 @@ Train과 Validation의 성능 차이가 매우 작게 나타났다.
 
 ---
 
-# 5. 참고문헌
+# 5. 참고문헌 및 활용 내용
 
 [1] P. J. Huber, "Robust Estimation of a Location Parameter", Annals of Mathematical Statistics, 1964.
 
+Huber의 Robust Estimation 개념을 참고하여, 큰 residual이 위치 추정 결과를 과도하게 왜곡하지 않도록 Huber Robust Least Squares를 초기 위치 추정 및 반복 위치 재추정 단계에 사용하였다.
+다만 본 프로젝트에서는 Huber 방법을 그대로 적용하는 데서 끝내지 않고, 이후 residual 기반 sensor reliability, MAD filtering, RTT bias compensation을 추가하여 실내 RTT 측위 문제에 맞게 확장하였다.
+
 [2] Hampel, Ronchetti, Rousseeuw and Stahel, Robust Statistics: The Approach Based on Influence Functions, Wiley, 1986.
+
+Robust Statistics에서 다루는 이상치에 강한 통계량의 개념을 참고하였다. 특히 평균과 표준편차 대신 median과 MAD를 사용하면 extreme outlier의 영향을 줄일 수 있다는 점을 활용하였다.
+본 프로젝트에서는 이를 각 BS residual의 중심과 분산을 추정하는 데 사용하였고, residual이 median에서 크게 벗어나는 센서의 영향을 줄이는 trust score 및 hard filtering 기준으로 확장하였다.
 
 [3] SciPy Documentation, scipy.optimize.least_squares.
 
+Python 구현에서는 SciPy의 `least_squares` 함수와 Huber loss 옵션을 사용하였다. 해당 문서는 least_squares의 입력 형식, loss option, residual function 작성 방식을 확인하는 데 참고하였다.
+본 프로젝트에서 직접 설계한 부분은 residual function 내부에 sensor reliability weight를 반영하고, 반복적으로 보정된 RTT distance를 사용하도록 알고리즘 구조를 구성한 것이다.
+
 [4] 스마트모빌리티공학실험2 기말 프로젝트 가이드라인.
+
+제출 형식, 데이터 구조, 실행 규칙, report.md 작성 규칙을 따르기 위해 참고하였다.
+가이드라인에 따라 `main.py`는 `DH_FR1.mat`을 읽고, 사용자 수를 입력 데이터에서 동적으로 받아 `(2, num_user)` 형태의 위치 추정 결과를 반환하도록 작성하였다.
+또한 비ML 방식이므로 `train.py`는 `main.py`와 동일한 내용으로 제출하였고, 표준 패키지인 numpy와 scipy만 사용하여 별도의 `requirements.txt`와 model 파일은 제출하지 않았다.
+
+[5] 본 프로젝트의 자체 실험 결과.
+
+최종 알고리즘은 참고문헌의 방법을 단순히 그대로 적용한 것이 아니라, 제공된 RTT 데이터에 대해 직접 수행한 residual 분석과 단계별 성능 비교를 바탕으로 설계하였다.
+Least Squares, Huber Robust LS, Trust-Huber, MAD + Trust, Bias + Trust, Iterative Trust-Bias를 순차적으로 비교하였고, 실제 성능 향상이 확인된 요소만 최종 알고리즘에 포함하였다.
+특히 residual median이 양수로 나타나는 경향을 관찰한 뒤 RTT bias compensation을 추가하였고, train/validation split을 통해 과적합 여부를 확인하였다.
+
