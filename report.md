@@ -1,4 +1,4 @@
-#12223632 서진석
+# 12223632 서진석
 
 # 1. 프로젝트 동기 및 문제 정의
 
@@ -296,7 +296,7 @@ Train과 Validation의 성능 차이가 매우 작게 나타났다.
 
 ---
 
-5. 참고문헌 및 활용 내용
+## 5. 참고문헌 및 활용 내용
 
 [1] P. J. Huber, "Robust Estimation of a Location Parameter", Annals of Mathematical Statistics, 1964.
 
